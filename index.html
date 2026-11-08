@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>⚽ API-Football Statistik & Analyse Dashboard</title>
+    <!-- PWA / Mobile Home-Screen Icon -->
+    <link rel="apple-touch-icon" href="https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/Bilder/Juergen%20Schuetzendorf.png">
+    <link rel="icon" type="image/png" href="https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/Bilder/Juergen%20Schuetzendorf.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Statistik Dashboard">
+    
     <style>
         :root {
             --bg-color: #0c0808;
@@ -19,7 +26,7 @@
         .container { width: 100%; max-width: 1000px; }
         header { text-align: center; margin-bottom: 25px; border-bottom: 2px solid var(--accent-color); padding-bottom: 15px; }
         h1 { font-size: 1.6rem; color: var(--accent-color); }
-        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; }
+        .card { background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 12px; padding: 20px; margin-bottom: 20px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
         .form-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px; align-items: center; }
         label { font-size: 0.85rem; color: var(--text-muted); width: 100%; margin-bottom: -5px; }
         select, button { background: #21262d; color: var(--text-main); border: 1px solid var(--border-color); padding: 10px 14px; border-radius: 6px; font-size: 0.95rem; }
@@ -44,13 +51,20 @@
         td.center, th.center { text-align: center; }
         .player-row { display: flex; align-items: center; gap: 6px; }
         .player-row img { width: 20px; height: 20px; border-radius: 50%; object-fit: cover; }
-        .team-section { margin-bottom: 20px; background: #161b22; padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        .team-section { margin-bottom: 0; background: #161b22; padding: 15px; border-radius: 10px; border: 1px solid var(--border-color); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); }
         
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-top: 10px; }
-        .stat-card { background: #1f242c; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; }
-        .stat-card h4 { color: var(--accent-color); margin-bottom: 10px; font-size: 0.95rem; border-bottom: 1px solid var(--border-color); padding-bottom: 5px; }
-        .stat-row { display: flex; justify-content: space-between; font-size: 0.85rem; padding: 4px 0; border-bottom: 1px dashed rgba(255,255,255,0.05); }
-        .sort-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .export-table-grid { width: 100%; border-collapse: separate; border-spacing: 10px; margin: -10px; }
+        .export-box { background: linear-gradient(135deg, #1b212c 0%, #161b22 100%); border: 1px solid #30363d; padding: 12px 14px; border-radius: 8px; vertical-align: top; width: 33.333%; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .export-box h4 { color: var(--accent-color); margin-bottom: 8px; font-size: 0.88rem; border-bottom: 1px solid #30363d; padding-bottom: 5px; }
+        
+        .inner-stat-table { width: 100%; border-collapse: collapse; }
+        .inner-stat-table td { padding: 5px 3px; border-bottom: 1px dashed rgba(255,255,255,0.06); font-size: 0.8rem; color: #ffffff !important; }
+        .inner-stat-table td.val { text-align: right; font-weight: bold; color: #ffffff !important; }
+
+        .sort-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; }
+        .output-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px; }
+        
+        .export-footer { margin-top: 15px; background: #110d0d; border: 1px solid #30363d; border-radius: 12px; padding: 12px 20px; display: flex; align-items: center; gap: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.4); }
     </style>
 </head>
 <body>
@@ -91,8 +105,17 @@
         </div>
 
         <div class="card" id="outputCard" style="display: none;">
-            <h3 style="color: var(--accent-color); margin-bottom: 12px; font-size: 1.1rem;" id="outputTitle">Statistiken</h3>
+            <div class="output-header">
+                <h3 style="color: var(--accent-color); font-size: 1.2rem; margin: 0;" id="outputTitle">Statistiken</h3>
+            </div>
             <div id="fixturesContainer">Lade...</div>
+            
+            <div class="export-footer">
+                <div style="width: 34px; height: 34px; border-radius: 50%; border: 2px solid #ff6600; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0; background: #000;">
+                    <img src="https://lhusylpjnujlqomougmg.supabase.co/storage/v1/object/public/Bilder/Juergen%20Schuetzendorf.png" style="width: 100%; height: 100%; object-fit: cover;" />
+                </div>
+                <span style="font-size: 0.85rem; font-weight: bold; letter-spacing: 1px; color: #ff6600;">WEBMANAGEMENT JÜRGEN SCHÜTZENDORF</span>
+            </div>
         </div>
     </div>
 
@@ -146,13 +169,12 @@
                         headers: { "x-apisports-key": apiKey }
                     });
                     const data = await res.json();
-                    if (data.response) {
+                    if (data.response && data.response.length > 0) {
                         teamsData = data.response;
                         setCachedData(cacheKey, teamsData);
                     }
                 } catch (e) {
-                    teamSelect.innerHTML = `<option value="">Fehler beim Laden</option>`;
-                    return;
+                    console.error("Fehler beim Laden der Teams:", e);
                 }
             }
 
@@ -168,10 +190,12 @@
                     const t = item.team;
                     const opt = document.createElement("option");
                     opt.value = t.id;
-                    opt.textContent = `${t.name} (${t.country})`;
+                    opt.textContent = `${t.name} (${t.country || ''})`;
                     teamSelect.appendChild(opt);
                 });
                 onTeamChange();
+            } else {
+                teamSelect.innerHTML = `<option value="">Keine Vereine gefunden</option>`;
             }
         }
 
@@ -225,44 +249,54 @@
             let cards = statsData.cards || {};
 
             let html = `
-                <div class="stats-grid">
-                    <div class="stat-card">
-                        <h4>📊 Form & Spiele</h4>
-                        <div class="stat-row"><span>Aktuelle Form:</span> <b>${statsData.form || '-'}</b></div>
-                        <div class="stat-row"><span>Spiele gesamt:</span> <b>${fixtures.played.total ?? 0}</b></div>
-                        <div class="stat-row"><span>Siege:</span> <span style="color:#2ea043; font-weight:bold;">${fixtures.wins.total ?? 0}</span></div>
-                        <div class="stat-row"><span>Unentschieden:</span> <b>${fixtures.draws.total ?? 0}</b></div>
-                        <div class="stat-row"><span>Niederlagen:</span> <span style="color:#da3633; font-weight:bold;">${fixtures.loses.total ?? 0}</span></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <h4>🏠 Heim- / Auswärtsbilanz</h4>
-                        <div class="stat-row"><span>Heim-Siege:</span> <b>${fixtures.wins.home ?? 0}</b></div>
-                        <div class="stat-row"><span>Heim-Niederlagen:</span> <b>${fixtures.loses.home ?? 0}</b></div>
-                        <div class="stat-row"><span>Auswärts-Siege:</span> <b>${fixtures.wins.away ?? 0}</b></div>
-                        <div class="stat-row"><span>Auswärts-Niederlagen:</span> <b>${fixtures.loses.away ?? 0}</b></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <h4>⚽ Tore & Offensive</h4>
-                        <div class="stat-row"><span>Erzielte Tore gesamt:</span> <b>${goals.for.total.total ?? 0}</b></div>
-                        <div class="stat-row"><span>Tore pro Spiel (Schnitt):</span> <b>${goals.for.average.total ?? 0}</b></div>
-                        <div class="stat-row"><span>Ohne eigenen Torerfolg:</span> <b>${failedToScore.total ?? 0}</b></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <h4>🛡️ Defensive & Zu-Null</h4>
-                        <div class="stat-row"><span>Kassierte Tore gesamt:</span> <b>${goals.against.total.total ?? 0}</b></div>
-                        <div class="stat-row"><span>Gegentore pro Spiel (Schnitt):</span> <b>${goals.against.average.total ?? 0}</b></div>
-                        <div class="stat-row"><span>Zu-Null-Spiele (Clean Sheets):</span> <b style="color:var(--accent-color);">${cleanSheet.total ?? 0}</b></div>
-                    </div>
-
-                    <div class="stat-card">
-                        <h4>🟨 Disziplin (Karten)</h4>
-                        <div class="stat-row"><span>Gelbe Karten (Gesamt):</span> <b>${(cards.yellow['0-15']?.total || 0) + (cards.yellow['16-30']?.total || 0) + (cards.yellow['31-45']?.total || 0) + (cards.yellow['46-60']?.total || 0) + (cards.yellow['61-75']?.total || 0) + (cards.yellow['76-90']?.total || 0) + (cards.yellow['91-105']?.total || 0) + (cards.yellow['106-120']?.total || 0)}</b></div>
-                        <div class="stat-row"><span>Rote Karten (Gesamt):</span> <b>${(cards.red['0-15']?.total || 0) + (cards.red['16-30']?.total || 0) + (cards.red['31-45']?.total || 0) + (cards.red['46-60']?.total || 0) + (cards.red['61-75']?.total || 0) + (cards.red['76-90']?.total || 0)}</b></div>
-                    </div>
-                </div>
+                <table class="export-table-grid">
+                    <tr>
+                        <td class="export-box">
+                            <h4>📊 Form & Spiele</h4>
+                            <table class="inner-stat-table">
+                                <tr><td>Aktuelle Form:</td><td class="val">${statsData.form || '-'}</td></tr>
+                                <tr><td>Spiele gesamt:</td><td class="val">${fixtures.played?.total ?? 0}</td></tr>
+                                <tr><td>Siege:</td><td class="val" style="color:#2ea043;">${fixtures.wins?.total ?? 0}</td></tr>
+                                <tr><td>Unentschieden:</td><td class="val">${fixtures.draws?.total ?? 0}</td></tr>
+                                <tr><td>Niederlagen:</td><td class="val" style="color:#da3633;">${fixtures.loses?.total ?? 0}</td></tr>
+                            </table>
+                        </td>
+                        <td class="export-box">
+                            <h4>🏠 Heim- / Auswärtsbilanz</h4>
+                            <table class="inner-stat-table">
+                                <tr><td>Heim-Siege:</td><td class="val">${fixtures.wins?.home ?? 0}</td></tr>
+                                <tr><td>Heim-Niederlagen:</td><td class="val">${fixtures.loses?.home ?? 0}</td></tr>
+                                <tr><td>Auswärts-Siege:</td><td class="val">${fixtures.wins?.away ?? 0}</td></tr>
+                                <tr><td>Auswärts-Niederlagen:</td><td class="val">${fixtures.loses?.away ?? 0}</td></tr>
+                            </table>
+                        </td>
+                        <td class="export-box">
+                            <h4>⚽ Tore & Offensive</h4>
+                            <table class="inner-stat-table">
+                                <tr><td>Erzielte Tore gesamt:</td><td class="val">${goals.for?.total?.total ?? 0}</td></tr>
+                                <tr><td>Tore pro Spiel (Schnitt):</td><td class="val">${goals.for?.average?.total ?? 0}</td></tr>
+                                <tr><td>Ohne eigenen Torerfolg:</td><td class="val">${failedToScore?.total ?? 0}</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td class="export-box">
+                            <h4>🛡️ Defensive & Zu-Null</h4>
+                            <table class="inner-stat-table">
+                                <tr><td>Kassierte Tore gesamt:</td><td class="val">${goals.against?.total?.total ?? 0}</td></tr>
+                                <tr><td>Gegentore pro Spiel (Schnitt):</td><td class="val">${goals.against?.average?.total ?? 0}</td></tr>
+                                <tr><td>Zu-Null-Spiele:</td><td class="val" style="color:var(--accent-color);">${cleanSheet?.total ?? 0}</td></tr>
+                            </table>
+                        </td>
+                        <td class="export-box" colspan="2">
+                            <h4>🟨 Disziplin (Karten)</h4>
+                            <table class="inner-stat-table">
+                                <tr><td>Gelbe Karten (Gesamt):</td><td class="val">${(cards.yellow?.['0-15']?.total || 0) + (cards.yellow?.['16-30']?.total || 0) + (cards.yellow?.['31-45']?.total || 0) + (cards.yellow?.['46-60']?.total || 0) + (cards.yellow?.['61-75']?.total || 0) + (cards.yellow?.['76-90']?.total || 0) + (cards.yellow?.['91-105']?.total || 0) + (cards.yellow?.['106-120']?.total || 0)}</td></tr>
+                                <tr><td>Rote Karten (Gesamt):</td><td class="val">${(cards.red?.['0-15']?.total || 0) + (cards.red?.['16-30']?.total || 0) + (cards.red?.['31-45']?.total || 0) + (cards.red?.['46-60']?.total || 0) + (cards.red?.['61-75']?.total || 0) + (cards.red?.['76-90']?.total || 0)}</td></tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
             `;
 
             container.innerHTML = html;
@@ -593,6 +627,7 @@
             container.innerHTML = html;
         }
 
+        // Beim Start direkt laden
         loadTeamsDropdown();
     </script>
 </body>
